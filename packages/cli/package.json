@@ -1,0 +1,31 @@
+{
+  "name": "mdfit",
+  "version": "0.1.0",
+  "description": "Fit any Markdown into any editor. Convert ChatGPT/Claude/Gemini output into Obsidian/Typora/GitHub flavored Markdown, straight from your clipboard.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/md-fit-all",
+    "directory": "packages/cli"
+  },
+  "bin": {
+    "mdfit": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "diff": "^8.0.0",
+    "mdfit-core": "workspace:*"
+  }
+}
