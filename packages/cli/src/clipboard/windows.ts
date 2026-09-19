@@ -31,6 +31,15 @@ function stripCfHtmlHeader(raw: string): string {
   return idx > 0 ? raw.slice(idx) : raw;
 }
 
+function pipeTo(cmd: string, args: string[], input: Buffer): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(cmd, args, { windowsHide: true });
+    child.on('error', reject);
+    child.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`${cmd} exited ${code}`))));
+    child.stdin.end(input);
+  });
+}
+
 export class WindowsClipboard implements ClipboardAdapter {
   async readText(): Promise<string> {
     // PowerShell appends a trailing CRLF to the output record — remove it.
@@ -48,12 +57,29 @@ export class WindowsClipboard implements ClipboardAdapter {
   }
 
   async writeText(text: string): Promise<void> {
-    // Pipe as base64: PowerShell 5.1 decodes piped stdin with the console
-    // codepage (GBK on zh-CN), which would corrupt UTF-8 CJK. Base64 is
-    // pure ASCII and immune to every codepage.
-    const b64 = Buffer.from(text, 'utf8').toString('base64');
-    const script =
-      '[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(($input -join "`n"))) | Set-Clipboard';
-    await runPowerShell(script, b64);
+    // Primary: clip.exe — Windows' own clipboard writer. Feed UTF-8 with a
+    // BOM so it decodes correctly, and let its internal retry handle
+    // transient "clipboard busy" contention from editors/managers.
+    try {
+      const bom = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(text, 'utf8')]);
+      await pipeTo('clip.exe', [], bom);
+      return;
+    } catch {
+      // Fallback: PowerShell Set-Clipboard over a base64 pipe (codepage-safe).
+      const b64 = Buffer.from(text, 'utf8').toString('base64');
+      const script =
+        '[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(($input -join "`n"))) | Set-Clipboard';
+      let lastError: unknown;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          await runPowerShell(script, b64);
+          return;
+        } catch (err) {
+          lastError = err;
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        }
+      }
+      throw lastError instanceof Error ? lastError : new Error(String(lastError));
+    }
   }
 }
