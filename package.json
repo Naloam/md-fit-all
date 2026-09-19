@@ -4,6 +4,7 @@
   "description": "Profile-driven Markdown dialect converter. Fit any Markdown (ChatGPT/Claude/Gemini output) into any target (Obsidian/Typora/GitHub).",
   "type": "module",
   "license": "MIT",
+  "packageManager": "pnpm@10.7.0",
   "engines": {
     "node": ">=20"
   },
