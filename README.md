@@ -24,10 +24,10 @@ never touched by regex. **Idempotent by design**: converting twice changes nothi
 
 ## Install
 
-From npm (once published):
+From npm:
 
 ```bash
-npm install -g mdfit
+npm install -g @naloam/mdfit
 ```
 
 From source:

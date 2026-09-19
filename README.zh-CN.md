@@ -22,10 +22,10 @@
 
 ## 安装
 
-npm 发布后：
+从 npm 安装：
 
 ```bash
-npm install -g mdfit
+npm install -g @naloam/mdfit
 ```
 
 从源码：
