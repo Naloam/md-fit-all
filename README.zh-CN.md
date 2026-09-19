@@ -31,7 +31,7 @@ npm install -g mdfit
 从源码：
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/md-fit-all
+git clone https://github.com/Naloam/md-fit-all
 cd md-fit-all
 pnpm install && pnpm build
 npm link --prefix ./packages/cli   # 或直接 node packages/cli/dist/index.js
@@ -95,14 +95,6 @@ pnpm build       # 构建所有包
 
 仓库结构：`packages/core`（引擎，零环境依赖）与 `packages/cli`（`mdfit` 命令）。
 参见 [CONTRIBUTING.md](./CONTRIBUTING.md) —— 贡献一条语料是价值最高的参与方式。
-
-## 路线图
-
-- [ ] Obsidian 插件壳（粘贴拦截，复用 `mdfit-core`）
-- [ ] 浏览器脚本：「复制为 Obsidian 格式」按钮 + 图片下载抢救（ChatGPT 文件链接会过期）
-- [ ] 反向转换（github → obsidian、`**注：**` 段落转 callout）
-- [ ] 常驻托盘进程，把 ~1.4 秒的 clip 延迟再压缩
-- [ ] macOS/Linux 剪贴板实测（适配器已就位）
 
 ## 许可证
 

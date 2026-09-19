@@ -1,14 +1,16 @@
 name: Release
 
+# Manual trigger only: publishing is done locally by default (token stays in
+# ~/.npmrc, never on GitHub). To enable CI publishing instead, add an NPM_TOKEN
+# secret to the repo and this workflow will publish via changesets.
+
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-    if: github.repository != 'YOUR_USERNAME/md-fit-all'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

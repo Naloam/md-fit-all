@@ -33,7 +33,7 @@ npm install -g mdfit
 From source:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/md-fit-all
+git clone https://github.com/Naloam/md-fit-all
 cd md-fit-all
 pnpm install && pnpm build
 npm link --prefix ./packages/cli   # or run node packages/cli/dist/index.js
@@ -99,14 +99,6 @@ pnpm build       # build all packages
 Monorepo layout: `packages/core` (engine, zero environment deps) and `packages/cli`
 (the `mdfit` command). See [CONTRIBUTING.md](./CONTRIBUTING.md) — adding a corpus case is the
 highest-value contribution.
-
-## Roadmap
-
-- [ ] Obsidian plugin shell (paste interception, reusing `mdfit-core`)
-- [ ] Browser userscript: "Copy as Obsidian" button + image download rescue (ChatGPT file URLs expire)
-- [ ] Reverse conversions (github → obsidian, callouts from `**Note:**` paragraphs)
-- [ ] Tray daemon to cut the ~1.4 s clip latency
-- [ ] macOS/Linux clipboard testing (adapters are in place)
 
 ## License
 

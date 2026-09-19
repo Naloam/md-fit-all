@@ -6,4 +6,7 @@ coverage/
 Thumbs.db
 # AutoHotkey compiled artifacts
 *.exe
-.zcode/ 
+# Local-only files (never publish)
+.zcode/
+PLAN.md
+.npmrc
