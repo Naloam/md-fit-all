@@ -10,7 +10,7 @@
     "directory": "packages/cli"
   },
   "bin": {
-    "mdfit": "dist/index.js"
+    "mdfit": "dist/index.cjs"
   },
   "files": [
     "dist"
@@ -19,13 +19,14 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=cjs --target=node20 --outfile=dist/index.cjs --sourcemap",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests"
   },
-  "dependencies": {
+  "devDependencies": {
     "commander": "^13.0.0",
     "diff": "^8.0.0",
+    "esbuild": "^0.25.0",
     "mdfit-core": "workspace:*"
   }
 }
