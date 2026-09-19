@@ -61,7 +61,10 @@ export const mathDelimitersRule: PreRule = {
           const before = full.slice(0, offset);
           const atLineStart = /^[ \t]*$/.test(before.slice(before.lastIndexOf('\n') + 1));
           const after = full.slice(offset + whole.length);
-          const restOfLine = after.slice(0, after.indexOf('\n') === -1 ? after.length : after.indexOf('\n'));
+          const restOfLine = after.slice(
+            0,
+            after.indexOf('\n') === -1 ? after.length : after.indexOf('\n'),
+          );
           const atLineEnd = /^[ \t]*$/.test(restOfLine);
           const lead = atLineStart ? '' : '\n\n';
           const tail = atLineEnd ? '' : '\n\n';

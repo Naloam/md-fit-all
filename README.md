@@ -67,7 +67,7 @@ mdfit rules list
 mdfit config set defaultTo obsidian
 ```
 
-## Global hotkey (Windows)
+## Global hotkey & daemon (Windows)
 
 Install [AutoHotkey v2](https://www.autohotkey.com/), then double-click
 [`scripts/hotkey.ahk`](./scripts/hotkey.ahk):
@@ -75,8 +75,38 @@ Install [AutoHotkey v2](https://www.autohotkey.com/), then double-click
 - `Ctrl+Alt+V` → clipboard converted for **Obsidian**
 - `Ctrl+Alt+T` → clipboard converted for **Typora**
 
-The full loop: copy in ChatGPT → hotkey → paste. No AutoHotkey? Just run `mdfit clip -y`
-manually, or bind it to any launcher.
+For near-instant hotkeys, keep the resident daemon running in a terminal
+(autostart it if you like):
+
+```bash
+mdfit serve        # listens on http://127.0.0.1:7317
+```
+
+The hotkey script then hits the daemon via `curl` (~100 ms instead of
+~1.4 s); `mdfit clip` also uses the daemon automatically when it is alive.
+No AutoHotkey? `Win+R` → `mdfitt` / `mdfito` (aliases created on install
+paths) or run `mdfit clip -y` directly.
+
+## Reverse conversions & custom profiles
+
+Obsidian targets now also convert *into* Obsidian idioms:
+
+- `[note](note.md)` → `[[note]]` (relative `.md` links & local images only)
+- `**Note:** text` → `> [!note] text` (EN + CJK labels)
+
+Layer your own defaults with a profile JSON:
+
+```bash
+mdfit convert in.md --to obsidian --profile my-rules.json
+```
+
+## More surfaces
+
+- **[Obsidian plugin](./packages/obsidian-plugin)** — paste interception inside
+  Obsidian, zero hotkeys needed.
+- **[Tampermonkey userscript](./packages/userscript)** — select any part of a
+  chat answer and copy it as clean Markdown from the browser, with
+  expired-URL image rescue (images are inlined as data URLs).
 
 ## Rules & Profiles
 

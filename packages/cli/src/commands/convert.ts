@@ -1,10 +1,21 @@
 import type { Command } from 'commander';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { convertDetailed } from 'mdfit-core';
-import type { SourceFlavor, TargetFlavor } from 'mdfit-core';
+import { convertDetailed, BASE_RULES } from 'mdfit-core';
+import type { RuleConfig, SourceFlavor, TargetFlavor } from 'mdfit-core';
 import { parseRuleOverrides } from '../rule-override.js';
 import { renderDiff } from '../diff.js';
 import { loadConfig } from '../config.js';
+
+export function loadProfileFile(path: string): Partial<RuleConfig> {
+  const raw = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>;
+  const valid = new Set(Object.keys(BASE_RULES));
+  for (const key of Object.keys(raw)) {
+    if (!valid.has(key)) {
+      throw new Error(`profile "${path}": unknown rule key "${key}"`);
+    }
+  }
+  return raw as Partial<RuleConfig>;
+}
 
 function readStdin(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -31,16 +42,19 @@ export function registerConvertCommand(program: Command): void {
       config.defaultTo ?? 'obsidian',
     )
     .option('--rule <k=v...>', 'rule overrides, e.g. --rule cjkSpacing=false headings=keep')
+    .option('--profile <file>', 'custom profile JSON layered over the built-in target style')
     .option('--diff', 'show a colored diff instead of writing output')
     .option('-v, --verbose', 'print detection signals and effective rules to stderr')
     .action(async (file: string | undefined, opts: Record<string, unknown>) => {
       const input = file ? readFileSync(file, 'utf8') : await readStdin();
       const rules = parseRuleOverrides((opts.rule as string[] | undefined) ?? []);
+      const profile = opts.profile ? loadProfileFile(opts.profile as string) : undefined;
 
       const result = convertDetailed(input, {
         from: (opts.from as SourceFlavor | 'auto') ?? 'auto',
         to: (opts.to as TargetFlavor) ?? 'obsidian',
         rules,
+        profile,
       });
 
       if (opts.verbose) {

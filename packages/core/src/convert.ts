@@ -26,7 +26,7 @@ export function convertDetailed(input: string, opts: ConvertOptions): ConvertRes
     source = detection.source;
   }
 
-  const rules = resolveRules(source, opts.to, opts.rules);
+  const rules = resolveRules(source, opts.to, opts.rules, opts.profile);
 
   let md = source === 'html' ? htmlToMarkdown(input) : input;
   md = runPreRules(md, rules);
@@ -56,13 +56,17 @@ export function convert(input: string, opts: ConvertOptions): string {
 }
 
 /**
- * Single trailing newline, no trailing spaces. For wiki-link targets, undo
- * the serializer's escaping of `[[` so Obsidian still sees real wikilinks.
+ * Single trailing newline, no trailing spaces. For wiki/callout targets, undo
+ * the serializer's escaping of `[[` and `[!` so Obsidian still sees real
+ * wikilinks and callout markers.
  */
 function finalize(md: string, rules: ConvertResult['rules']): string {
   let out = md.replace(/[ \t]+\n/g, '\n').trimEnd() + '\n';
   if (rules.wikilinks === 'wiki') {
     out = out.replaceAll('\\[\\[', '[[');
+  }
+  if (rules.calloutize) {
+    out = out.replaceAll('\\[!', '[!');
   }
   return out;
 }

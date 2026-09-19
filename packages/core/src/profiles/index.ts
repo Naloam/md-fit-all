@@ -15,18 +15,20 @@ export function listTargetNames(): TargetFlavor[] {
 }
 
 /**
- * Layered rule resolution: base ← source cleanup ← target style ← user overrides.
- * Later layers win key by key.
+ * Layered rule resolution: base ← source cleanup ← target style ← custom
+ * profile ← user overrides. Later layers win key by key.
  */
 export function resolveRules(
   source: SourceFlavor,
   target: TargetFlavor,
   overrides?: Partial<RuleConfig>,
+  customProfile?: Partial<RuleConfig>,
 ): RuleConfig {
   return {
     ...BASE_RULES,
     ...SOURCE_PROFILES[source].cleanup,
     ...TARGET_PROFILES[target].style,
+    ...customProfile,
     ...overrides,
   };
 }

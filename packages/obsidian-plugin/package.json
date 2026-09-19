@@ -1,0 +1,23 @@
+{
+  "name": "mdfit-obsidian",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Obsidian plugin: auto-convert pasted LLM output into Obsidian-flavored Markdown via mdfit-core.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Naloam/md-fit-all",
+    "directory": "packages/obsidian-plugin"
+  },
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=node --format=cjs --target=es2020 --external:obsidian --outfile=dist/main.js --sourcemap && node -e \"require('fs').copyFileSync('manifest.json','dist/manifest.json')\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "mdfit-core": "workspace:*",
+    "obsidian": "^1.7.2"
+  }
+}

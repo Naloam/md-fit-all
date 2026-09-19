@@ -11,6 +11,8 @@ const VALID_KEYS = new Set<string>([
   'cjkSpacing',
   'callouts',
   'wikilinks',
+  'wikiLinkify',
+  'calloutize',
   'stripArtifacts',
   'wrapLatexEnv',
 ]);

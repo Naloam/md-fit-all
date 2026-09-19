@@ -30,6 +30,10 @@ export interface RuleConfig {
   callouts: 'obsidian' | 'blockquote';
   /** Link style for output: keep `[[wiki]]` or convert to `[label](target.md)`. */
   wikilinks: 'wiki' | 'markdown';
+  /** Reverse direction: convert relative `.md` links back into `[[wikilinks]]`. */
+  wikiLinkify: boolean;
+  /** Reverse direction: `**Note:** text` paragraphs become Obsidian callouts. */
+  calloutize: boolean;
   /** Remove UI artifacts: excess blank lines, trailing spaces, zero-width chars, "Copy code" text. */
   stripArtifacts: boolean;
   /** Wrap bare LaTeX environments (\begin{align} …) in $$ delimiters. */
@@ -48,6 +52,8 @@ export const BASE_RULES: RuleConfig = {
   cjkSpacing: false,
   callouts: 'blockquote',
   wikilinks: 'markdown',
+  wikiLinkify: false,
+  calloutize: false,
   stripArtifacts: true,
   wrapLatexEnv: true,
 };
@@ -73,6 +79,8 @@ export interface ConvertOptions {
   to: TargetFlavor;
   /** Partial rule overrides applied last. */
   rules?: Partial<RuleConfig>;
+  /** Custom profile layer (e.g. loaded from a JSON file), applied after built-in layers. */
+  profile?: Partial<RuleConfig>;
 }
 
 export interface DetectionResult {

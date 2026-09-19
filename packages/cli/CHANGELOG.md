@@ -1,5 +1,26 @@
 # @naloam/mdfit
 
+## 0.2.0
+
+### Minor Changes
+
+- Roadmap completion — everything from the initial plan is now in:
+
+  - reverse conversions: relative `.md` links → `[[wikilinks]]`, `**Note:**`
+    paragraphs → Obsidian callouts (EN + CJK labels)
+  - custom profile JSON files: `--profile my-rules.json` on convert/clip
+  - `mdfit serve`: resident daemon with a persistent PowerShell clipboard
+    bridge (JSONL protocol) — hotkey path drops from ~1.4 s to ~100 ms via
+    curl; `mdfit clip` auto-uses it when alive
+  - GFM tables now verified aligned (padded columns) by tests
+  - new Obsidian plugin package (paste interception, reuses mdfit-core)
+  - new Tampermonkey userscript (copy selection as Obsidian/Typora/GitHub,
+    expired-URL image rescue via data URLs)
+  - macOS/Linux clipboard adapters covered by command-construction tests;
+    real-device verification still pending (documented)
+  - corpus grows to 23 cases (Claude/Gemini styles, reverse conversions);
+    177 tests green
+
 ## 0.1.5
 
 ### Patch Changes

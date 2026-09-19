@@ -6,6 +6,7 @@ import { registerClipCommand } from './commands/clip.js';
 import { registerProfilesCommand } from './commands/profiles.js';
 import { registerRulesCommand } from './commands/rules.js';
 import { registerConfigCommand } from './commands/config.js';
+import { registerServeCommand } from './commands/serve.js';
 
 const program = new Command();
 
@@ -21,6 +22,7 @@ registerClipCommand(program);
 registerProfilesCommand(program);
 registerRulesCommand(program);
 registerConfigCommand(program);
+registerServeCommand(program);
 
 program.parseAsync().catch((err: Error) => {
   console.error(`mdfit: ${err.message}`);

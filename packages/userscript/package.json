@@ -1,0 +1,22 @@
+{
+  "name": "mdfit-userscript",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tampermonkey userscript: copy ChatGPT/Claude/Gemini selections as clean Markdown, with expired-URL image rescue.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Naloam/md-fit-all",
+    "directory": "packages/userscript"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "mdfit-core": "workspace:*"
+  }
+}

@@ -4,6 +4,8 @@ import { headingsRule } from '../rules/headings.js';
 import { codeFenceRule } from '../rules/code-fence.js';
 import { calloutsRule } from '../rules/callouts.js';
 import { wikilinksRule } from '../rules/wikilinks.js';
+import { wikiLinkifyRule } from '../rules/wiki-linkify.js';
+import { calloutizeRule } from '../rules/calloutize.js';
 import { emphasisFixRule } from '../rules/emphasis-fix.js';
 import { cjkSpacingRule } from '../rules/cjk-spacing.js';
 
@@ -19,12 +21,14 @@ export interface AstRule {
   apply: (tree: Root, rules: RuleConfig) => void;
 }
 
-/** Order: structure first, then inline text fixes. */
+/** Order: structure first, then reverse-direction rules, then inline text fixes. */
 export const AST_RULES: AstRule[] = [
   headingsRule,
   codeFenceRule,
   calloutsRule,
   wikilinksRule,
+  wikiLinkifyRule,
+  calloutizeRule,
   emphasisFixRule,
   cjkSpacingRule,
 ];

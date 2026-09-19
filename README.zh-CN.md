@@ -65,7 +65,7 @@ mdfit rules list
 mdfit config set defaultTo obsidian
 ```
 
-## 全局热键（Windows）
+## 全局热键与常驻服务（Windows）
 
 安装 [AutoHotkey v2](https://www.autohotkey.com/)，双击
 [`scripts/hotkey.ahk`](./scripts/hotkey.ahk)：
@@ -73,7 +73,35 @@ mdfit config set defaultTo obsidian
 - `Ctrl+Alt+V` → 剪贴板转换为 **Obsidian** 格式
 - `Ctrl+Alt+T` → 剪贴板转换为 **Typora** 格式
 
-完整闭环：在 ChatGPT 复制 → 按热键 → 粘贴。没装 AutoHotkey 也可以手动跑 `mdfit clip -y`。
+想再快，就常驻一个守护进程（可加入开机自启）：
+
+```bash
+mdfit serve        # 监听 http://127.0.0.1:7317
+```
+
+此后热键脚本走 `curl` 打守护进程（约 100ms，替代冷启动的 ~1.4 秒）；
+`mdfit clip` 检测到守护进程在线时也会自动走快路径。
+没装 AutoHotkey？`Win+R` 输入 `mdfitt` / `mdfito` 回车即可。
+
+## 反向转换与自定义 Profile
+
+Obsidian 目标现在也会把内容转换*进* Obsidian 习惯用法：
+
+- `[笔记](笔记.md)` → `[[笔记]]`（仅限相对 `.md` 链接和本地图片）
+- `**注意：** 内容` → `> [!warning] 内容`（中英文标签都认）
+
+用 JSON 文件叠加你自己的默认规则：
+
+```bash
+mdfit convert in.md --to obsidian --profile my-rules.json
+```
+
+## 更多形态
+
+- **[Obsidian 插件](./packages/obsidian-plugin)** —— 在 Obsidian 内部拦截粘贴，
+  连热键都不用按。
+- **[Tampermonkey 脚本](./packages/userscript)** —— 在浏览器里框选任意聊天回答，
+  直接复制为干净的 Markdown，并抢救会过期的图片链接（内联为 data URL）。
 
 ## 规则与 Profile
 

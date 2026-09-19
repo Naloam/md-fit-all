@@ -75,6 +75,26 @@ Rebuild `**bold**` that failed to parse because of inner-edge whitespace
 (`** 加粗 **`) as real strong nodes. CommonMark parses intraword asterisk
 emphasis fine, so only genuinely-broken leftovers are touched.
 
+### calloutize (obsidian targets)
+
+Reverse direction: a paragraph opening with a bold label becomes an Obsidian
+callout. Recognizes EN labels (note/info/tip/hint/important/warning/caution/
+danger/abstract/summary/success/question/failure/bug/example/quote) and CJK
+labels（注/说明/提示/注意/警告/重要/危险/摘要）, with or without a colon:
+
+| Input | Output |
+|---|---|
+| `**Note:** text` | `> [!note] text` |
+| `**警告：** 内容` | `> [!warning] 内容` |
+| `> **Tip:** x` | `> [!tip] x` (in place, no nesting) |
+
+### wikiLinkify (obsidian targets)
+
+Reverse direction: local relative links become wikilinks — `[笔记](笔记.md)` →
+`[[笔记]]`, `[别名](x.md)` → `[[x|别名]]`, `folder/deep%20note.md` →
+`[[folder/deep note]]`, `![alt](img.png)` → `![[img.png]]`. External links
+(http/mailto/anchors) are never touched.
+
 ### cjkSpacing
 
 Insert a single space between Han characters and Latin letters/digits

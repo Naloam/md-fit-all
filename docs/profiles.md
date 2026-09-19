@@ -24,6 +24,19 @@ for any profile's exact settings.
 | `github` | `$`/`$$` (MathJax) | → blockquote | → markdown links | off |
 | `commonmark` | `$`/`$$` | → blockquote | → markdown links | off |
 
+## Custom profiles
+
+Any built-in layer can be overridden with a JSON file passed via
+`--profile my-rules.json` (convert & clip) or the `profile` body field
+(daemon / API). Keys are rule names; unknown keys are rejected:
+
+```json
+{ "calloutize": false, "cjkSpacing": true, "headings": "keep" }
+```
+
+Layer order: `BASE_RULES` ← source cleanup ← target style ← **custom profile** ←
+`--rule` overrides.
+
 ## Detect signals (`auto`)
 
 | Signal | Weight |

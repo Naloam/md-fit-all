@@ -35,7 +35,9 @@ function pipeTo(cmd: string, args: string[], input: Buffer): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn(cmd, args, { windowsHide: true });
     child.on('error', reject);
-    child.on('close', (code) => (code === 0 ? resolve() : reject(new Error(`${cmd} exited ${code}`))));
+    child.on('close', (code) =>
+      code === 0 ? resolve() : reject(new Error(`${cmd} exited ${code}`)),
+    );
     child.stdin.end(input);
   });
 }

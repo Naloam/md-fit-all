@@ -1,11 +1,41 @@
 import type { Command } from 'commander';
 import { convertDetailed } from 'mdfit-core';
-import type { SourceFlavor, TargetFlavor } from 'mdfit-core';
+import type { RuleConfig, SourceFlavor, TargetFlavor } from 'mdfit-core';
 import { getClipboardAdapter } from '../clipboard/index.js';
 import { parseRuleOverrides } from '../rule-override.js';
 import { renderDiff, diffStats } from '../diff.js';
 import { loadConfig } from '../config.js';
+import { DEFAULT_PORT } from '../server.js';
+import { loadProfileFile } from './convert.js';
 import * as readline from 'node:readline/promises';
+
+/** If a serve daemon is alive, delegate the whole clip to it (fast path). */
+async function tryServerClip(
+  to: string,
+  from: string,
+  rules: Partial<RuleConfig>,
+  profile: Partial<RuleConfig> | undefined,
+): Promise<boolean> {
+  const base = `http://127.0.0.1:${DEFAULT_PORT}`;
+  try {
+    const health = await fetch(`${base}/health`, { signal: AbortSignal.timeout(120) });
+    if (!health.ok) return false;
+    const res = await fetch(`${base}/clip`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ to, from, rules, profile }),
+      signal: AbortSignal.timeout(2000),
+    });
+    if (!res.ok) return false;
+    const body = (await res.json()) as { source?: string; added?: number; removed?: number };
+    console.log(
+      `mdfit: ${body.source ?? '?'} → ${to} (+${body.added ?? 0}/-${body.removed ?? 0} lines) — clipboard updated (daemon).`,
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function registerClipCommand(program: Command): void {
   const config = loadConfig();
@@ -20,19 +50,27 @@ export function registerClipCommand(program: Command): void {
       config.defaultTo ?? 'obsidian',
     )
     .option('--rule <k=v...>', 'rule overrides, e.g. --rule cjkSpacing=false')
+    .option('--profile <file>', 'custom profile JSON layered over the built-in target style')
     .option('--html', 'prefer the clipboard HTML flavor (for copies from rendered pages)')
     .option('--diff', 'preview changes before applying (confirm interactively)')
     .option('-y, --yes', 'skip confirmation when used with --diff (non-interactive apply)')
     .option('-v, --verbose', 'print detection signals to stderr')
     .action(async (opts: Record<string, unknown>) => {
-      const adapter = getClipboardAdapter();
       const rules = parseRuleOverrides((opts.rule as string[] | undefined) ?? []);
-      const preferHtml = opts.html === true;
+      const profile = opts.profile ? loadProfileFile(opts.profile as string) : undefined;
+      const to = (opts.to as TargetFlavor) ?? 'obsidian';
       const from = (opts.from as SourceFlavor | 'auto') ?? 'auto';
+      const preferHtml = opts.html === true || from === 'html';
 
+      // Fast path: a resident daemon does clipboard I/O without process spawns.
+      if (!preferHtml && !opts.diff && !opts.verbose) {
+        if (await tryServerClip(to, from, rules, profile)) return;
+      }
+
+      const adapter = getClipboardAdapter();
       let input: string;
       let effectiveFrom: SourceFlavor | 'auto' = from;
-      if (preferHtml || from === 'html') {
+      if (preferHtml) {
         const html = await adapter.readHtml();
         if (html === undefined) {
           console.error('No HTML flavor on clipboard; falling back to plain text.');
@@ -54,8 +92,9 @@ export function registerClipCommand(program: Command): void {
 
       const result = convertDetailed(input, {
         from: effectiveFrom,
-        to: (opts.to as TargetFlavor) ?? 'obsidian',
+        to,
         rules,
+        profile,
       });
 
       if (opts.verbose && result.detection) {
@@ -79,7 +118,7 @@ export function registerClipCommand(program: Command): void {
       await adapter.writeText(result.markdown);
       const { added, removed } = diffStats(input, result.markdown);
       console.log(
-        `mdfit: ${result.source} → ${String(opts.to)} (+${added}/-${removed} lines) — clipboard updated.`,
+        `mdfit: ${result.source} → ${to} (+${added}/-${removed} lines) — clipboard updated.`,
       );
     });
 }

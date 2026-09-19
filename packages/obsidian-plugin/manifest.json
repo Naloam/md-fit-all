@@ -1,0 +1,10 @@
+{
+  "id": "mdfit",
+  "name": "mdfit — fit any Markdown",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Auto-convert pasted LLM output (ChatGPT / Claude / Gemini) into Obsidian-flavored Markdown: math delimiters, headings, citations, tables.",
+  "author": "Naloam",
+  "authorUrl": "https://github.com/Naloam",
+  "isDesktopOnly": false
+}
