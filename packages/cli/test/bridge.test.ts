@@ -1,7 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PersistentClipboardBridge } from '../src/clipboard/bridge.js';
 
-const windows = process.platform === 'win32';
+// The bridge talks to the real OS clipboard, which only exists in an
+// interactive desktop session — CI runners (headless service sessions)
+// have none. Run locally on Windows instead.
+const windows = process.platform === 'win32' && !process.env.CI;
 const d = windows ? describe : describe.skip;
 
 let bridge: PersistentClipboardBridge | undefined;
