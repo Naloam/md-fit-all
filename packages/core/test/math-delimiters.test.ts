@@ -16,6 +16,16 @@ describe('mathDelimiters rule', () => {
     expect(out).not.toContain('\\[');
   });
 
+  it('breaks the paragraph when \\[..\\] sits mid-sentence', () => {
+    // Block $$ must start/end on its own lines, or remark-math cannot parse
+    // it and everything degrades to escaped literals.
+    const out = convert('欧拉公式 \\[e^{i\\pi}+1=0\\]非常重要。', opts);
+    expect(out).toContain('$$\ne^{i\\pi}+1=0\n$$');
+    expect(out).not.toContain('\\$');
+    // The block is separated from surrounding prose.
+    expect(out).toMatch(/\n\n\$\$\ne\^\{i\\pi\}\+1=0\n\$\$\n\n/);
+  });
+
   it('never touches LaTeX delimiters inside code blocks', () => {
     const md = '说明：\n\n```latex\n\\(x^2\\)\n```\n';
     expect(convert(md, opts)).toContain('\\(x^2\\)');

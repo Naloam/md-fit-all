@@ -1,6 +1,6 @@
 {
   "name": "@naloam/mdfit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fit any Markdown into any editor. Convert ChatGPT/Claude/Gemini output into Obsidian/Typora/GitHub flavored Markdown, straight from your clipboard.",
   "type": "module",
   "license": "MIT",

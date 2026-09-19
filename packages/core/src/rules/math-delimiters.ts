@@ -49,9 +49,24 @@ export const mathDelimitersRule: PreRule = {
         isMathBody(body) ? `$${body.trim()}$` : whole,
       );
       // Display math gets the multi-line $$ form so remark-math parses it as
-      // a math *block*; inline `$$..$$` would degrade to inline math.
-      out = out.replace(DISPLAY_MATH_RE, (whole, body: string) =>
-        isMathBody(body) ? `$$\n${body.trim()}\n$$` : whole,
+      // a math *block*; inline `$$..$$` would degrade to inline math. A block
+      // must start at the beginning of a line and end at the end of one, so
+      // when \[..\] sits mid-sentence we break the paragraph around it —
+      // otherwise the $$ can never parse and degrades to escaped literals.
+      out = out.replace(
+        DISPLAY_MATH_RE,
+        (whole: string, body: string, offset: number, full: string) => {
+          if (!isMathBody(body)) return whole;
+          const block = `$$\n${body.trim()}\n$$`;
+          const before = full.slice(0, offset);
+          const atLineStart = /^[ \t]*$/.test(before.slice(before.lastIndexOf('\n') + 1));
+          const after = full.slice(offset + whole.length);
+          const restOfLine = after.slice(0, after.indexOf('\n') === -1 ? after.length : after.indexOf('\n'));
+          const atLineEnd = /^[ \t]*$/.test(restOfLine);
+          const lead = atLineStart ? '' : '\n\n';
+          const tail = atLineEnd ? '' : '\n\n';
+          return `${lead}${block}${tail}`;
+        },
       );
       return out;
     }),
