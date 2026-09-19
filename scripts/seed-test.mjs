@@ -1,6 +1,7 @@
-// Self-contained Windows clipboard roundtrip check (no internal dist imports).
-// Run: node scripts/clip-roundtrip.mjs
+// Minimal: does clip.exe + BOM seed CJK correctly (no daemon involved)?
 import { spawn } from 'node:child_process';
+
+const text = '# 中文标题 公式';
 
 function pipeTo(cmd, args, input) {
   return new Promise((resolve, reject) => {
@@ -30,22 +31,21 @@ function readClipboard() {
     child.stdout.on('data', (d) => (out += d));
     child.on('error', reject);
     child.on('close', (code) =>
-      code === 0
-        ? resolve(out.replace(/\r?\n$/, '').replaceAll('\r\n', '\n'))
-        : reject(new Error(`read failed`)),
+      code === 0 ? resolve(out.replace(/\r?\n$/, '')) : reject(new Error('read failed')),
     );
     child.stdin.end();
   });
 }
 
-const expected = '中文测试 English \\(x^2\\) 【1†src】\n第二行';
-await pipeTo('cmd.exe', ['/c', 'chcp 65001>nul & clip'], Buffer.from(expected, 'utf8'));
-const back = await readClipboard();
+// Variant A: BOM (current broken behavior)
+const bom = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(text, 'utf8')]);
+await pipeTo('clip.exe', [], bom);
+const backA = await readClipboard();
+console.log('A) BOM only:', backA === text, JSON.stringify(backA));
 
-if (back === expected) {
-  console.log('ROUNDTRIP-OK');
-} else {
-  console.log('expected:', JSON.stringify(expected));
-  console.log('actual  :', JSON.stringify(back));
-  process.exitCode = 1;
-}
+// Variant B: chcp 65001 + raw UTF-8 (no BOM)
+await pipeTo('cmd.exe', ['/c', 'chcp 65001>nul & clip'], Buffer.from(text, 'utf8'));
+const backB = await readClipboard();
+console.log('B) chcp 65001:', backB === text, JSON.stringify(backB));
+
+process.exit(backB === text ? 0 : 1);

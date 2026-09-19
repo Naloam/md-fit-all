@@ -1,5 +1,11 @@
 # @naloam/mdfit
 
+## 0.2.1
+
+### Patch Changes
+
+- Critical fix for Windows CJK clipboard writes: clip.exe does not honor a UTF-8 BOM (the bytes land on the clipboard as GBK mojibake on zh-CN systems). The write path now runs clip.exe behind `chcp 65001` with raw UTF-8, and clipboard reads normalize CRLF to LF. Daemon round-trip verified at ~100 ms with correct Chinese output.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -111,7 +111,8 @@ export class PersistentClipboardBridge implements ClipboardAdapter {
     if (!res.ok || res.b64 === undefined) {
       throw new Error(res.error ?? 'bridge read failed');
     }
-    return Buffer.from(res.b64, 'base64').toString('utf8');
+    // Normalize CRLF (Windows clipboard convention) to LF.
+    return Buffer.from(res.b64, 'base64').toString('utf8').replaceAll('\r\n', '\n');
   }
 
   async writeText(text: string): Promise<void> {

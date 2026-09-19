@@ -44,8 +44,10 @@ function pipeTo(cmd: string, args: string[], input: Buffer): Promise<void> {
 
 export class WindowsClipboard implements ClipboardAdapter {
   async readText(): Promise<string> {
-    // PowerShell appends a trailing CRLF to the output record — remove it.
-    return (await runPowerShell(`${UTF8} Get-Clipboard -Raw`)).replace(/\r?\n$/, '');
+    // PowerShell appends a trailing CRLF to the output record; the Windows
+    // clipboard itself also stores CRLF. Normalize to LF for the pipeline.
+    const raw = await runPowerShell(`${UTF8} Get-Clipboard -Raw`);
+    return raw.replace(/\r?\n$/, '').replaceAll('\r\n', '\n');
   }
 
   async readHtml(): Promise<string | undefined> {
@@ -59,12 +61,11 @@ export class WindowsClipboard implements ClipboardAdapter {
   }
 
   async writeText(text: string): Promise<void> {
-    // Primary: clip.exe — Windows' own clipboard writer. Feed UTF-8 with a
-    // BOM so it decodes correctly, and let its internal retry handle
-    // transient "clipboard busy" contention from editors/managers.
+    // Primary: clip.exe behind `chcp 65001` so it decodes raw UTF-8 stdin.
+    // (Feeding a UTF-8 BOM directly does NOT work — clip.exe is not a BOM
+    // consumer and stores the BOM bytes as GBK mojibake on zh-CN systems.)
     try {
-      const bom = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(text, 'utf8')]);
-      await pipeTo('clip.exe', [], bom);
+      await pipeTo('cmd.exe', ['/c', 'chcp 65001>nul & clip'], Buffer.from(text, 'utf8'));
       return;
     } catch {
       // Fallback: PowerShell Set-Clipboard over a base64 pipe (codepage-safe).

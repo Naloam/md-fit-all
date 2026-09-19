@@ -38,8 +38,7 @@ function readClipboard() {
 }
 
 const seed = '### Typora 试用\n\n勾股定理 \\(a^2+b^2=c^2\\)，欧拉公式 \\[e^{i\\pi}+1=0\\]。';
-const bom = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(seed, 'utf8')]);
-await pipeTo('clip.exe', [], bom);
+await pipeTo('cmd.exe', ['/c', 'chcp 65001>nul & clip'], Buffer.from(seed, 'utf8'));
 
 execFileSync('mdfit', ['clip', '--to', 'typora', '-y'], { stdio: 'inherit', shell: true });
 
