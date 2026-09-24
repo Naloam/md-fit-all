@@ -1,6 +1,6 @@
 {
   "id": "mdfit",
-  "name": "mdfit — fit any Markdown",
+  "name": "mdfit - Fit Any Markdown",
   "version": "0.1.0",
   "minAppVersion": "1.4.0",
   "description": "Auto-convert pasted LLM output (ChatGPT / Claude / Gemini) into Obsidian-flavored Markdown: math delimiters, headings, citations, tables.",

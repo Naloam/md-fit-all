@@ -13,7 +13,7 @@ Settings → Community plugins.
 Manual install: download `main.js` + `manifest.json` from the
 [release channel repo](https://github.com/Naloam/mdfit-obsidian-plugin/releases/latest),
 copy them into `<your-vault>/.obsidian/plugins/mdfit/`, then enable
-**mdfit — fit any Markdown**. To build from source instead: `pnpm build` in
+**mdfit - Fit Any Markdown**. To build from source instead: `pnpm build` in
 this directory and copy `dist/*`.
 
 ## Usage
