@@ -5,13 +5,16 @@ Obsidian-flavored Markdown the moment it lands in a note: math delimiters,
 heading levels, citations, tables, CJK spacing — the same battle-tested
 [mdfit-core](../../packages/core) engine that powers the `mdfit` CLI.
 
-## Install (manual, until community-plugin review)
+## Install
 
-1. Build: `pnpm build` in this directory (or use the repo-root `pnpm build`).
-2. Copy `dist/main.js`, `dist/manifest.json` into
-   `<your-vault>/.obsidian/plugins/mdfit/`.
-3. Obsidian → Settings → Community plugins → reload the list → enable
-   **mdfit — fit any Markdown**.
+From the community directory (once listed): search **"mdfit"** in
+Settings → Community plugins.
+
+Manual install: download `main.js` + `manifest.json` from the
+[release channel repo](https://github.com/Naloam/mdfit-obsidian-plugin/releases/latest),
+copy them into `<your-vault>/.obsidian/plugins/mdfit/`, then enable
+**mdfit — fit any Markdown**. To build from source instead: `pnpm build` in
+this directory and copy `dist/*`.
 
 ## Usage
 
