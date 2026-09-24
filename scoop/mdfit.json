@@ -1,0 +1,26 @@
+{
+  "version": "0.3.0",
+  "description": "Fit any Markdown into any editor. Convert ChatGPT/Claude/Gemini output into Obsidian/Typora/GitHub flavored Markdown, straight from your clipboard.",
+  "homepage": "https://github.com/Naloam/md-fit-all",
+  "license": "MIT",
+  "suggest": {
+    "Node.js": "nodejs"
+  },
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/Naloam/md-fit-all/releases/download/v0.3.0/mdfit-0.3.0-standalone.zip",
+      "bin": "mdfit.cmd"
+    }
+  },
+  "checkver": {
+    "github": "https://github.com/Naloam/md-fit-all",
+    "regex": "tag/v([\\d.]+)"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/Naloam/md-fit-all/releases/download/v$version/mdfit-$version-standalone.zip"
+      }
+    }
+  }
+}

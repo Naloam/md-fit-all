@@ -9,6 +9,8 @@ tables or spacing ever again.
 
 Copy from ChatGPT → press `Ctrl+Alt+V` → paste into Obsidian. Zero manual cleanup.
 
+![mdfit demo](docs/assets/demo.svg)
+
 ## Why
 
 Every editor wants a slightly different Markdown, and every chatbot emits its own dialect:
@@ -28,6 +30,19 @@ From npm:
 
 ```bash
 npm install -g @naloam/mdfit
+```
+
+No install? Try it instantly:
+
+```bash
+npx @naloam/mdfit clip --to obsidian -y
+```
+
+Scoop (Windows):
+
+```bash
+scoop bucket add mdfit https://github.com/Naloam/md-fit-all --subdir scoop
+scoop install mdfit
 ```
 
 From source:
@@ -57,6 +72,15 @@ cat raw.md | mdfit convert --to github > clean.md
 
 # See what the auto-detector found
 mdfit convert notes.md --verbose
+
+# Batch-convert a whole vault (publish to GitHub, migrate, …)
+mdfit convert-dir vault/ -o vault-github/ --to github --dry-run
+
+# Rescue expiring chat images while converting
+mdfit clip --to obsidian --download-images
+
+# Autostart the daemon at logon (hidden, no admin needed)
+mdfit serve --install
 
 # Override any rule
 mdfit clip --to github --rule cjkSpacing=true headings=keep

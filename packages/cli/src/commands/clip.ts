@@ -5,6 +5,7 @@ import { getClipboardAdapter } from '../clipboard/index.js';
 import { parseRuleOverrides } from '../rule-override.js';
 import { renderDiff, diffStats } from '../diff.js';
 import { loadConfig } from '../config.js';
+import { collectRemoteImages, downloadImages, rewriteImageLinks } from '../images.js';
 import { DEFAULT_PORT } from '../server.js';
 import { loadProfileFile } from './convert.js';
 import * as readline from 'node:readline/promises';
@@ -51,6 +52,8 @@ export function registerClipCommand(program: Command): void {
     )
     .option('--rule <k=v...>', 'rule overrides, e.g. --rule cjkSpacing=false')
     .option('--profile <file>', 'custom profile JSON layered over the built-in target style')
+    .option('--download-images', 'download remote images and rewrite links (chat file URLs expire)')
+    .option('--images-dir <dir>', 'directory for downloaded images (default: mdfit-images)')
     .option('--html', 'prefer the clipboard HTML flavor (for copies from rendered pages)')
     .option('--diff', 'preview changes before applying (confirm interactively)')
     .option('-y, --yes', 'skip confirmation when used with --diff (non-interactive apply)')
@@ -97,13 +100,29 @@ export function registerClipCommand(program: Command): void {
         profile,
       });
 
+      let markdown = result.markdown;
+      if (opts.downloadImages) {
+        const urls = collectRemoteImages(markdown);
+        if (urls.length > 0) {
+          const dir = (opts.imagesDir as string) ?? 'mdfit-images';
+          const { map, failed } = await downloadImages(urls, dir);
+          markdown = rewriteImageLinks(markdown, map);
+          if (failed.length > 0) {
+            console.error(
+              `mdfit: ${failed.length}/${urls.length} image(s) failed to download (links kept):`,
+            );
+            for (const f of failed) console.error(`  ${f.url} — ${f.reason}`);
+          }
+        }
+      }
+
       if (opts.verbose && result.detection) {
         console.error(`detected source: ${result.source} (${result.detection.confidence})`);
         for (const s of result.detection.signals) console.error(`  signal: ${s}`);
       }
 
       if (opts.diff && !opts.yes) {
-        console.log(renderDiff(input, result.markdown));
+        console.log(renderDiff(input, markdown));
         const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
         const answer = await rl.question('Apply to clipboard? [y/N] ');
         rl.close();
@@ -112,11 +131,11 @@ export function registerClipCommand(program: Command): void {
           return;
         }
       } else if (opts.diff) {
-        console.log(renderDiff(input, result.markdown));
+        console.log(renderDiff(input, markdown));
       }
 
-      await adapter.writeText(result.markdown);
-      const { added, removed } = diffStats(input, result.markdown);
+      await adapter.writeText(markdown);
+      const { added, removed } = diffStats(input, markdown);
       console.log(
         `mdfit: ${result.source} → ${to} (+${added}/-${removed} lines) — clipboard updated.`,
       );

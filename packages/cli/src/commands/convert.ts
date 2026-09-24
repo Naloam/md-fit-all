@@ -5,6 +5,7 @@ import type { RuleConfig, SourceFlavor, TargetFlavor } from 'mdfit-core';
 import { parseRuleOverrides } from '../rule-override.js';
 import { renderDiff } from '../diff.js';
 import { loadConfig } from '../config.js';
+import { collectRemoteImages, downloadImages, rewriteImageLinks } from '../images.js';
 
 export function loadProfileFile(path: string): Partial<RuleConfig> {
   const raw = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>;
@@ -43,6 +44,8 @@ export function registerConvertCommand(program: Command): void {
     )
     .option('--rule <k=v...>', 'rule overrides, e.g. --rule cjkSpacing=false headings=keep')
     .option('--profile <file>', 'custom profile JSON layered over the built-in target style')
+    .option('--download-images', 'download remote images and rewrite links (chat file URLs expire)')
+    .option('--images-dir <dir>', 'directory for downloaded images (default: assets)')
     .option('--diff', 'show a colored diff instead of writing output')
     .option('-v, --verbose', 'print detection signals and effective rules to stderr')
     .action(async (file: string | undefined, opts: Record<string, unknown>) => {
@@ -57,6 +60,22 @@ export function registerConvertCommand(program: Command): void {
         profile,
       });
 
+      let markdown = result.markdown;
+      if (opts.downloadImages) {
+        const urls = collectRemoteImages(markdown);
+        if (urls.length > 0) {
+          const dir = (opts.imagesDir as string) ?? 'assets';
+          const { map, failed } = await downloadImages(urls, dir);
+          markdown = rewriteImageLinks(markdown, map);
+          if (failed.length > 0) {
+            console.error(
+              `mdfit: ${failed.length}/${urls.length} image(s) failed to download (links kept):`,
+            );
+            for (const f of failed) console.error(`  ${f.url} — ${f.reason}`);
+          }
+        }
+      }
+
       if (opts.verbose) {
         console.error(`source: ${result.source} (from=${String(opts.from)})`);
         if (result.detection) {
@@ -66,14 +85,14 @@ export function registerConvertCommand(program: Command): void {
       }
 
       if (opts.diff) {
-        console.log(renderDiff(input, result.markdown));
+        console.log(renderDiff(input, markdown));
         return;
       }
       if (opts.output) {
-        writeFileSync(opts.output as string, result.markdown, 'utf8');
+        writeFileSync(opts.output as string, markdown, 'utf8');
         if (opts.verbose) console.error(`written: ${String(opts.output)}`);
       } else {
-        process.stdout.write(result.markdown);
+        process.stdout.write(markdown);
       }
     });
 }

@@ -8,6 +8,8 @@
 
 从 ChatGPT 复制 → 按 `Ctrl+Alt+V` → 粘进 Obsidian，零手动修改。
 
+![mdfit 演示](docs/assets/demo.svg)
+
 ## 为什么需要它
 
 每个编辑器想要的 Markdown 略有不同，而每个聊天机器人输出的又是各自的方言：
@@ -26,6 +28,19 @@
 
 ```bash
 npm install -g @naloam/mdfit
+```
+
+不想安装？直接试用：
+
+```bash
+npx @naloam/mdfit clip --to obsidian -y
+```
+
+Scoop（Windows）：
+
+```bash
+scoop bucket add mdfit https://github.com/Naloam/md-fit-all --subdir scoop
+scoop install mdfit
 ```
 
 从源码：
@@ -55,6 +70,15 @@ cat raw.md | mdfit convert --to github > clean.md
 
 # 查看自动识别结果
 mdfit convert notes.md --verbose
+
+# 批量转换整个目录（发布到 GitHub、迁移……）
+mdfit convert-dir vault/ -o vault-github/ --to github --dry-run
+
+# 转换时抢救会过期的聊天图片
+mdfit clip --to obsidian --download-images
+
+# 守护进程开机自启（隐藏窗口，无需管理员）
+mdfit serve --install
 
 # 覆盖任意规则
 mdfit clip --to github --rule cjkSpacing=true headings=keep

@@ -1,5 +1,22 @@
 # @naloam/mdfit
 
+## 0.3.0
+
+### Minor Changes
+
+- Second wave — daily-use and distribution features:
+
+  - `mdfit serve --install/--uninstall`: hidden logon autostart via the
+    Startup folder (no admin rights needed)
+  - `mdfit convert-dir`: batch-convert a whole tree preserving layout,
+    with --dry-run
+  - `--download-images [--images-dir]` on convert/clip: downloads remote
+    images (expiring chat URLs) and rewrites links, 5 MB / 8 s caps
+  - property-based tests (fast-check): 450 random corpus recombinations
+    assert no-throw, idempotency, code protection
+  - animated demo in READMEs, npx quick-try, scoop bucket manifest,
+    release artifact script, promo drafts
+
 ## 0.2.1
 
 ### Patch Changes
