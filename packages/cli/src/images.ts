@@ -64,18 +64,29 @@ export function rewriteImageLinks(md: string, map: Map<string, string>): string 
   return out;
 }
 
+interface FetchedImage {
+  url: string;
+  name: string;
+  buf: Buffer;
+}
+
+interface FetchError {
+  url: string;
+  reason: string;
+}
+
 export interface DownloadResult {
   map: Map<string, string>;
-  failed: Array<{ url: string; reason: string }>;
+  failed: FetchError[];
 }
 
 /** Download remote images into `dir`; returns the url→relative-path map. */
 export async function downloadImages(urls: string[], dir: string): Promise<DownloadResult> {
   const map = new Map<string, string>();
-  const failed: Array<{ url: string; reason: string }> = [];
+  const failed: FetchError[] = [];
 
   const results = await Promise.all(
-    urls.map(async (url) => {
+    urls.map(async (url): Promise<FetchedImage | FetchError> => {
       try {
         const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

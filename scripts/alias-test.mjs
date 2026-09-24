@@ -31,7 +31,9 @@ function readClipboard() {
     child.stdout.on('data', (d) => (out += d));
     child.on('error', reject);
     child.on('close', (code) =>
-      code === 0 ? resolve(out.replace(/\r?\n$/, '')) : reject(new Error(`read failed (${code})`)),
+      code === 0
+        ? resolve(out.replace(/\r?\n$/, '').replaceAll('\r\n', '\n'))
+        : reject(new Error(`read failed (${code})`)),
     );
     child.stdin.end();
   });
