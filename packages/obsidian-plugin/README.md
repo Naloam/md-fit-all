@@ -1,6 +1,6 @@
-# mdfit for Obsidian
+# mdfit - Fit Any Markdown
 
-Auto-converts pasted LLM output (ChatGPT / Claude / Gemini) into
+Auto-converts pasted LLM output (ChatGPT / Claude / Gemini) into clean
 Obsidian-flavored Markdown the moment it lands in a note: math delimiters,
 heading levels, citations, tables, CJK spacing — the same battle-tested
 [mdfit-core](../../packages/core) engine that powers the `mdfit` CLI.
