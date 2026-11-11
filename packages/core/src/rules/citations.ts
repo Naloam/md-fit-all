@@ -54,7 +54,16 @@ export const citationsRule: PreRule = {
     }
 
     if (rules.citations === 'footnote' && footnotes.length > 0) {
+      // ChatGPT cites the same number more than once; duplicate [^n]: blocks
+      // are noise (GFM/Obsidian keep the first definition anyway), so emit
+      // one definition per citation number.
+      const seen = new Set<number>();
       const defs = footnotes
+        .filter(({ n }) => {
+          if (seen.has(n)) return false;
+          seen.add(n);
+          return true;
+        })
         .map(({ n, source }) => `[^${n}]: ${source.length > 0 ? source : '(source)'}`)
         .join('\n');
       out = `${out.trimEnd()}\n\n${defs}\n`;
