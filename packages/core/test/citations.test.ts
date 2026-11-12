@@ -41,4 +41,13 @@ describe('citations rule', () => {
     expect(out).toContain('[^2]');
     expect(out).toContain('[^2]: OpenAI docs');
   });
+
+  it('footnote mode emits one definition per citation number', () => {
+    const out = convert('依据【1†docs】与【1†docs】再次引用【2†spec】。', {
+      ...opts,
+      rules: { citations: 'footnote' },
+    });
+    expect(out.match(/^\[\^1\]:/gm)?.length).toBe(1);
+    expect(out.match(/^\[\^2\]:/gm)?.length).toBe(1);
+  });
 });

@@ -12,6 +12,15 @@ describe('convert (framework end-to-end)', () => {
     expect(out).toBe('a\n\nb\n');
   });
 
+  it('finalizes trailing spaces without touching fenced code interiors', () => {
+    const md = 'para with trailing   \n\n```ts\nconst x = 1;   \n```\n';
+    const out = convert(md, { from: 'generic', to: 'obsidian' });
+    // Protected segment stays byte-identical (protectedTransform contract)...
+    expect(out).toContain('const x = 1;   \n');
+    // ...while unprotected prose still gets trailing-space hygiene.
+    expect(out).not.toContain('trailing   \n');
+  });
+
   it('is idempotent on the framework pipeline', () => {
     const input = '# T\n\ntext with **bold** and `code`\n\n\n\nmore\n';
     const once = convert(input, { from: 'chatgpt', to: 'obsidian' });

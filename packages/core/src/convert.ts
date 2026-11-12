@@ -10,6 +10,7 @@ import { resolveRules } from './profiles/index.js';
 import { runPreRules } from './pipeline/pre.js';
 import { runAstRules } from './pipeline/ast.js';
 import { stringifyOptions } from './pipeline/serialize.js';
+import { protectedTransform } from './pipeline/protected.js';
 import { htmlToMarkdown } from './rules/html-input.js';
 
 /**
@@ -61,7 +62,9 @@ export function convert(input: string, opts: ConvertOptions): string {
  * wikilinks and callout markers.
  */
 function finalize(md: string, rules: ConvertResult['rules']): string {
-  let out = md.replace(/[ \t]+\n/g, '\n').trimEnd() + '\n';
+  // Trailing-space hygiene runs on unprotected text only: fenced code, inline
+  // code and $$ math must stay byte-identical (the protectedTransform contract).
+  let out = protectedTransform(md, (text) => text.replace(/[ \t]+\n/g, '\n')).trimEnd() + '\n';
   if (rules.wikilinks === 'wiki') {
     out = out.replaceAll('\\[\\[', '[[');
   }
