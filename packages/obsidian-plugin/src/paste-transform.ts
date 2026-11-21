@@ -50,3 +50,21 @@ export function transformPaste(payload: PastePayload, settings: PasteSettings): 
   if (!chosen) return null;
   return convert(chosen.input, { from: chosen.from, to: 'obsidian' });
 }
+
+/**
+ * Merge persisted settings (Obsidian's data.json — possibly written by an
+ * older plugin version or hand-edited) over the defaults. Values are
+ * validated per key so a malformed data.json can never break paste
+ * handling; unknown keys are ignored and forward-incompatible gaps fall
+ * back to the defaults.
+ */
+export function mergeSettings(stored: unknown): PasteSettings {
+  const fallback = { ...DEFAULT_SETTINGS };
+  if (stored === null || typeof stored !== 'object') return fallback;
+  const s = stored as Record<string, unknown>;
+  return {
+    enabled: typeof s.enabled === 'boolean' ? s.enabled : fallback.enabled,
+    preferHtml:
+      s.preferHtml === 'auto' || s.preferHtml === 'never' ? s.preferHtml : fallback.preferHtml,
+  };
+}
