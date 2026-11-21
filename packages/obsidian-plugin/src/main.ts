@@ -1,5 +1,5 @@
 import { Notice, Plugin, type Editor, type MarkdownFileInfo } from 'obsidian';
-import { DEFAULT_SETTINGS, transformPaste, type PasteSettings } from './paste-transform.js';
+import { DEFAULT_SETTINGS, mergeSettings, transformPaste, type PasteSettings } from './paste-transform.js';
 
 /**
  * mdfit for Obsidian — intercepts editor paste and runs the clipboard through
@@ -10,11 +10,17 @@ export default class MdfitPlugin extends Plugin {
   settings: PasteSettings = { ...DEFAULT_SETTINGS };
 
   async onload(): Promise<void> {
+    await this.loadSettings();
+
     this.addCommand({
       id: 'toggle-enabled',
       name: 'Toggle paste conversion on/off',
       callback: () => {
         this.settings.enabled = !this.settings.enabled;
+        // Persistence must not block the toggle UI; failures land in the console.
+        this.saveSettings().catch((err) => {
+          console.error('mdfit: failed to persist settings', err);
+        });
         new Notice(`mdfit: paste conversion ${this.settings.enabled ? 'enabled' : 'disabled'}`);
       },
     });
@@ -38,5 +44,14 @@ export default class MdfitPlugin extends Plugin {
         },
       ),
     );
+  }
+
+  /** Load from Obsidian's data.json; a missing or corrupt file falls back to defaults. */
+  private async loadSettings(): Promise<void> {
+    this.settings = mergeSettings(await this.loadData());
+  }
+
+  private async saveSettings(): Promise<void> {
+    await this.saveData(this.settings);
   }
 }

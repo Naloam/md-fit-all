@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_SETTINGS,
   choosePasteInput,
+  mergeSettings,
   htmlCarriesStructure,
   transformPaste,
 } from '../src/paste-transform.js';
@@ -78,5 +79,29 @@ describe('transformPaste', () => {
   it('leaves already-clean notes untouched in effect (idempotent shape)', () => {
     const once = transformPaste({ markdown: null, text: '# Title\n\nplain', html: '' }, settings);
     expect(once).toBe('# Title\n\nplain\n');
+  });
+});
+
+describe('mergeSettings', () => {
+  it('falls back to defaults for absent or non-object data', () => {
+    expect(mergeSettings(null)).toEqual(DEFAULT_SETTINGS);
+    expect(mergeSettings(undefined)).toEqual(DEFAULT_SETTINGS);
+    expect(mergeSettings('junk')).toEqual(DEFAULT_SETTINGS);
+  });
+
+  it('applies valid stored values', () => {
+    expect(mergeSettings({ enabled: false, preferHtml: 'never' })).toEqual({
+      enabled: false,
+      preferHtml: 'never',
+    });
+  });
+
+  it('validates per key so a malformed data.json cannot break pasting', () => {
+    expect(mergeSettings({ enabled: 'yes', preferHtml: 'always' })).toEqual(DEFAULT_SETTINGS);
+    expect(mergeSettings({ enabled: false, preferHtml: 42 })).toEqual({
+      enabled: false,
+      preferHtml: DEFAULT_SETTINGS.preferHtml,
+    });
+    expect(mergeSettings([1, 2])).toEqual(DEFAULT_SETTINGS);
   });
 });
